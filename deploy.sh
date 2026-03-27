@@ -57,7 +57,28 @@ echo ""
 echo "Granting managed identity access to SQL..."
 ACCESS_TOKEN=$(az account get-access-token --resource=https://database.windows.net/ --query accessToken -o tsv)
 
-sqlcmd -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryAccessToken --access-token "$ACCESS_TOKEN" -Q "
+# Find sqlcmd — check PATH, then common Azure Cloud Shell locations
+if command -v sqlcmd &>/dev/null; then
+  SQLCMD="sqlcmd"
+elif [ -x /opt/mssql-tools18/bin/sqlcmd ]; then
+  SQLCMD="/opt/mssql-tools18/bin/sqlcmd"
+elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then
+  SQLCMD="/opt/mssql-tools/bin/sqlcmd"
+else
+  echo "sqlcmd not found. Installing..."
+  curl -sL https://aka.ms/sqlpackage-linux | tar xz -C /tmp
+  SQLCMD="/tmp/sqlcmd"
+  if [ ! -x "$SQLCMD" ]; then
+    echo "WARNING: Could not install sqlcmd. Run the SQL grant manually:"
+    echo "  CREATE USER [${APP_NAME}] FROM EXTERNAL PROVIDER;"
+    echo "  ALTER ROLE db_datareader ADD MEMBER [${APP_NAME}];"
+    echo "  ALTER ROLE db_datawriter ADD MEMBER [${APP_NAME}];"
+    echo "Done (SQL grant skipped)."
+    exit 0
+  fi
+fi
+
+$SQLCMD -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryAccessToken --access-token "$ACCESS_TOKEN" -Q "
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = '${APP_NAME}')
 BEGIN
     CREATE USER [${APP_NAME}] FROM EXTERNAL PROVIDER;
