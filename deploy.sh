@@ -1,8 +1,18 @@
 #!/bin/bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TF_DIR="$SCRIPT_DIR/infra/terraform"
+REPO_URL="https://github.com/tiagojfernandes/DevAcademy.git"
+
+# If the repo isn't cloned locally, clone it to a temp directory
+if [ -d "infra/terraform" ]; then
+  REPO_DIR="$(pwd)"
+else
+  REPO_DIR=$(mktemp -d)
+  echo "Cloning repo into $REPO_DIR..."
+  git clone "$REPO_URL" "$REPO_DIR"
+fi
+
+TF_DIR="$REPO_DIR/infra/terraform"
 ENV="${1:-dev}"
 VAR_FILE="$TF_DIR/${ENV}.tfvars"
 
