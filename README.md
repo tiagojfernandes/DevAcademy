@@ -49,15 +49,4 @@ The script automatically:
 2. Generates a throwaway SQL password (required by Azure API, blocked at runtime)
 3. Runs `terraform init` → `validate` → `plan`
 4. Asks for confirmation before applying
-
-## Post-deploy
-
-Grant the App Service managed identity access to the database:
-
-```sql
-CREATE USER [swe-api-app-001] FROM EXTERNAL PROVIDER;
-ALTER ROLE db_datareader ADD MEMBER [swe-api-app-001];
-ALTER ROLE db_datawriter ADD MEMBER [swe-api-app-001];
-```
-
-Run this in the Azure Portal SQL Query Editor or via `sqlcmd`, logged in as the AAD admin.
+5. Grants the App Service managed identity `db_datareader` and `db_datawriter` roles on the SQL database

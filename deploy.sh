@@ -37,4 +37,23 @@ if [ "$CONFIRM" != "yes" ]; then
 fi
 
 terraform -chdir="$TF_DIR" apply tfplan
+
+# Read app_name from the tfvars file for the SQL grant
+APP_NAME=$(grep 'app_name' "$VAR_FILE" | sed 's/.*= *"\(.*\)"/\1/')
+SQL_SERVER="${APP_NAME}-sql.database.windows.net"
+SQL_DB="${APP_NAME}-db"
+
+echo ""
+echo "Granting managed identity access to SQL..."
+ACCESS_TOKEN=$(az account get-access-token --resource=https://database.windows.net/ --query accessToken -o tsv)
+
+sqlcmd -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryAccessToken --access-token "$ACCESS_TOKEN" -Q "
+IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = '${APP_NAME}')
+BEGIN
+    CREATE USER [${APP_NAME}] FROM EXTERNAL PROVIDER;
+    ALTER ROLE db_datareader ADD MEMBER [${APP_NAME}];
+    ALTER ROLE db_datawriter ADD MEMBER [${APP_NAME}];
+END
+"
+
 echo "Done."
