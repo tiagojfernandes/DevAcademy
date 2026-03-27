@@ -5,13 +5,12 @@ resource "azurerm_mssql_server" "this" {
   version                      = "12.0"
   administrator_login          = var.admin_login
   administrator_login_password = var.admin_password
-}
 
-resource "azurerm_mssql_server_azuread_administrator" "aad_admin" {
-  server_id                = azurerm_mssql_server.this.id
-  login                    = var.aad_admin_name
-  object_id                = var.aad_admin_object_id
-  azuread_authentication_only = true
+  azuread_administrator {
+    login_username              = var.aad_admin_name
+    object_id                   = var.aad_admin_object_id
+    azuread_authentication_only = true
+  }
 }
 
 resource "azurerm_mssql_database" "this" {
