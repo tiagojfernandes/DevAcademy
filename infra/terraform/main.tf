@@ -29,7 +29,7 @@ module "app_service" {
 
   app_settings = {
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.appi.connection_string
-    "SQL_CONNECTION_STRING"                 = "Server=tcp:${var.app_name}-sql.database.windows.net,1433;Database=${var.app_name}-db;Authentication=Active Directory Managed Identity;Encrypt=True;TrustServerCertificate=False;"
+    "SQL_CONNECTION_STRING"                 = "Server=tcp:${var.app_name}-sql-fog.database.windows.net,1433;Database=${var.app_name}-db;Authentication=Active Directory Managed Identity;Encrypt=True;TrustServerCertificate=False;"
   }
 }
 
@@ -38,6 +38,7 @@ module "sql" {
   server_name          = "${var.app_name}-sql"
   db_name              = "${var.app_name}-db"
   location             = module.rg.location
+  failover_location    = var.failover_location
   resource_group_name  = module.rg.name
   admin_login          = var.sql_admin
   admin_password       = var.sql_password

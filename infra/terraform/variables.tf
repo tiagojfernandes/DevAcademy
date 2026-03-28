@@ -2,6 +2,10 @@ variable "location" {
   default = "uksouth"
 }
 
+variable "failover_location" {
+  default = "ukwest"
+}
+
 variable "resource_group_name" {}
 
 variable "app_name" {}

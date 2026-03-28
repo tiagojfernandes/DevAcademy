@@ -50,7 +50,7 @@ terraform -chdir="$TF_DIR" apply tfplan
 
 # Read app_name from the tfvars file for the SQL grant
 APP_NAME=$(grep 'app_name' "$VAR_FILE" | sed 's/.*= *"\(.*\)"/\1/')
-SQL_SERVER="${APP_NAME}-sql.database.windows.net"
+SQL_SERVER="${APP_NAME}-sql-fog.database.windows.net"
 SQL_DB="${APP_NAME}-db"
 
 echo ""
