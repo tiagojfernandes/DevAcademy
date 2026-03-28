@@ -57,25 +57,22 @@ echo ""
 echo "Granting managed identity access to SQL..."
 ACCESS_TOKEN=$(az account get-access-token --resource=https://database.windows.net/ --query accessToken -o tsv)
 
-# Find sqlcmd — check PATH, then common Azure Cloud Shell locations
-if command -v sqlcmd &>/dev/null; then
+# Need the Go-based sqlcmd (supports AAD token auth)
+if command -v sqlcmd &>/dev/null && sqlcmd --version 2>&1 | grep -qi "go-sqlcmd\|Version: 1"; then
   SQLCMD="sqlcmd"
-elif [ -x /opt/mssql-tools18/bin/sqlcmd ]; then
-  SQLCMD="/opt/mssql-tools18/bin/sqlcmd"
-elif [ -x /opt/mssql-tools/bin/sqlcmd ]; then
-  SQLCMD="/opt/mssql-tools/bin/sqlcmd"
 else
-  echo "sqlcmd not found. Installing..."
-  curl -sL https://aka.ms/sqlpackage-linux | tar xz -C /tmp
+  echo "Installing go-sqlcmd..."
+  curl -sL https://github.com/microsoft/go-sqlcmd/releases/latest/download/sqlcmd-linux-amd64.tar.bz2 | tar xj -C /tmp
   SQLCMD="/tmp/sqlcmd"
-  if [ ! -x "$SQLCMD" ]; then
-    echo "WARNING: Could not install sqlcmd. Run the SQL grant manually:"
-    echo "  CREATE USER [${APP_NAME}] FROM EXTERNAL PROVIDER;"
-    echo "  ALTER ROLE db_datareader ADD MEMBER [${APP_NAME}];"
-    echo "  ALTER ROLE db_datawriter ADD MEMBER [${APP_NAME}];"
-    echo "Done (SQL grant skipped)."
-    exit 0
-  fi
+fi
+
+if [ ! -x "$SQLCMD" ]; then
+  echo "WARNING: Could not find go-sqlcmd. Run the SQL grant manually:"
+  echo "  CREATE USER [${APP_NAME}] FROM EXTERNAL PROVIDER;"
+  echo "  ALTER ROLE db_datareader ADD MEMBER [${APP_NAME}];"
+  echo "  ALTER ROLE db_datawriter ADD MEMBER [${APP_NAME}];"
+  echo "Done (SQL grant skipped)."
+  exit 0
 fi
 
 $SQLCMD -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryAccessToken --access-token "$ACCESS_TOKEN" -Q "
