@@ -55,9 +55,8 @@ SQL_DB="${APP_NAME}-db"
 
 echo ""
 echo "Granting managed identity access to SQL..."
-ACCESS_TOKEN=$(az account get-access-token --resource=https://database.windows.net/ --query accessToken -o tsv)
 
-# Need the Go-based sqlcmd (supports AAD token auth)
+# Need the Go-based sqlcmd (supports AAD auth)
 if command -v sqlcmd &>/dev/null && sqlcmd --version 2>&1 | grep -qi "go-sqlcmd\|Version: 1"; then
   SQLCMD="sqlcmd"
 else
@@ -75,7 +74,7 @@ if [ ! -x "$SQLCMD" ]; then
   exit 0
 fi
 
-$SQLCMD -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryAccessToken --access-token "$ACCESS_TOKEN" -Q "
+$SQLCMD -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryDefault -Q "
 IF NOT EXISTS (SELECT 1 FROM sys.database_principals WHERE name = '${APP_NAME}')
 BEGIN
     CREATE USER [${APP_NAME}] FROM EXTERNAL PROVIDER;
