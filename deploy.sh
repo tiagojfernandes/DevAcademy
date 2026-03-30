@@ -83,4 +83,10 @@ BEGIN
 END
 "
 
+SCHEMA_FILE="$REPO_DIR/infra/sql/schema.sql"
+if [ -f "$SCHEMA_FILE" ]; then
+  echo "Applying database schema..."
+  $SQLCMD -S "$SQL_SERVER" -d "$SQL_DB" --authentication-method=ActiveDirectoryDefault -i "$SCHEMA_FILE"
+fi
+
 echo "Done."
