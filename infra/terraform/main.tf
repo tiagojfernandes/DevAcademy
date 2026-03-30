@@ -29,6 +29,7 @@ module "app_service" {
 
   app_settings = {
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.appi.connection_string
+    "APPLICATIONINSIGHTS_ENABLE_AGENT"      = "false"
     "SQL_CONNECTION_STRING"                 = "Server=tcp:${var.app_name}-sql-fog.database.windows.net,1433;Database=${var.app_name}-db;Authentication=Active Directory Managed Identity;Encrypt=True;TrustServerCertificate=False;"
   }
 }
