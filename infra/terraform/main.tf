@@ -25,7 +25,7 @@ module "app_service" {
   plan_name           = "${var.app_name}-plan"
   location            = module.rg.location
   resource_group_name = module.rg.name
-  sku                 = "B1"
+  sku                 = "S1"
 
   app_settings = {
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.appi.connection_string
