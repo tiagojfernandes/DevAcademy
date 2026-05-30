@@ -1,0 +1,22 @@
+meta {
+  name: 07 - Place Order
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/orders
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{userToken}}
+}
+
+docs {
+  Place Order converts the current shopping cart into an order.
+  You need at least one item in the cart for this to succeed,
+  so add to the cart first (POST /api/cart/items with productId + quantity)
+  using the user token. Otherwise expect a 400.
+}

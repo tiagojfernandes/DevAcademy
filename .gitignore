@@ -1,0 +1,41 @@
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
+
+# Secrets — never commit tfvars with passwords
+*.auto.tfvars
+
+# OS
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+.vs/
+*.user
+*.suo
+
+# .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+*.coverage
+*.coveragexml
+
+# User secrets safety net (normally lives in %APPDATA%, not the repo, but just in case)
+secrets.json
+
+# Internal notes for the instructor — never commit
+Internal_README.md
